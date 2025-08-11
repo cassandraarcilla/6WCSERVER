@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Form</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Admin Form</h2>
+    <form action="/api/getAdmin" method="get">
+      <input type="text" name="adminID" placeholder="Admin ID" required>
+      <input type="text" name="firstName" placeholder="First Name" required>
+      <input type="text" name="lastName" placeholder="Last Name" required>
+      <input type="text" name="department" placeholder="Department" required>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>

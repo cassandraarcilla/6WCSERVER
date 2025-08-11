@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student Form</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Student Form</h2>
+    <form action="/api/getStudent" method="get">
+      <input type="text" name="studentID" placeholder="Student ID" required>
+      <input type="text" name="firstName" placeholder="First Name" required>
+      <input type="text" name="lastName" placeholder="Last Name" required>
+      <input type="text" name="section" placeholder="Section" required>
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</body>
+</html>
+
