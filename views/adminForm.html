@@ -1,18 +1,23 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Form</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="form-container">
     <h2>Admin Form</h2>
-    <!-- Action now matches the correct POST route -->
-    <form action="/api/postAdmin" method="POST">
+
+    <!-- Admin form for submitting admin details and uploading file -->
+    <form action="/upload" method="POST" enctype="multipart/form-data">
       <input type="text" name="adminID" placeholder="Admin ID" required>
       <input type="text" name="firstName" placeholder="First Name" required>
       <input type="text" name="lastName" placeholder="Last Name" required>
       <input type="text" name="department" placeholder="Department" required>
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="file" name="file" required>
       <button type="submit">Submit</button>
     </form>
   </div>

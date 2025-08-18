@@ -1,23 +1,64 @@
-// Import express and path modules
+// Import express, multer, path, and other necessary modules
 import express from 'express';
+import multer from 'multer';
 import path from 'path';
-import bodyParser from 'body-parser';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Initialize express app
 const app = express();
 const PORT = 5000;
 
-// Middleware to parse URL-encoded data (form submissions)
-app.use(bodyParser.urlencoded({ extended: true })); // Use extended: true to handle nested objects
-app.use(bodyParser.json()); 
+// Setup multer storage
+var storage = multer.diskStorage({
+    destination: (req, file, callback) => {
+        callback(null, 'uploads/'); // Ensure 'uploads' folder exists
+    },
+    filename: (req, file, callback) => {
+        callback(null, file.originalname);
+    }
+});
 
-// Get the current directory
-const __dirname = path.resolve();
+// Use multer to handle file uploads
+var upload = multer({ storage: storage }).fields([{ name: 'file', maxCount: 1 }]);
 
-// Serve static files (CSS, JS, etc.)
+// Middleware for parsing form data
+app.use(express.urlencoded({ extended: true }));  // Middleware for URL-encoded form data
+app.use(express.json());  // Middleware for parsing JSON data
+
+// Route to serve file upload form (adminForm.html)
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views/adminForm.html'));
+});
+
+// Handle file upload (POST /upload)
+app.post('/upload', (req, res) => {
+    upload(req, res, (err) => {
+        // Check if there's an error during file upload
+        if (err) return res.end('Error uploading file');
+        
+        // Access the text field (username)
+        const username = req.body.username;
+        
+        // Access the uploaded file
+        const uploadedFile = req.files['file'][0]; // Corrected field name here
+
+        console.log(`Username: ${username}`);
+        console.log(`File path: ${uploadedFile.path}`);
+        
+        // Respond with success message
+        res.end('File and form data uploaded successfully!');
+    });
+});
+
+// Serve static files from 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Home page route (Handling GET request)
-app.get('/', (req, res) => {
+app.get('/home', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'home.html'));
 });
 
@@ -33,21 +74,18 @@ app.get('/adminForm', (req, res) => {
 
 // Handle form submission for admin data (POST /api/postAdmin)
 app.post('/api/postAdmin', (req, res) => {
-    const { adminID, firstName, lastName, department } = req.body; // Extract data from the request body
-
-    // Simulate saving the data (e.g., in a database)
+    const { adminID, firstName, lastName, department } = req.body;
     console.log(`Received Admin Data: ${adminID}, ${firstName}, ${lastName}, ${department}`);
-
-    // Respond with a success message and the received data
+    
     res.json({
         message: 'Admin data received successfully!',
         adminData: { adminID, firstName, lastName, department }
     });
 });
 
-// Get a single student using POST parameters
+// Handle form submission for getting a single student
 app.post('/api/getStudent', (req, res) => {
-    const { studentID, firstName, lastName, section } = req.body; // Use body to extract data
+    const { studentID, firstName, lastName, section } = req.body;
     res.json({
         studentID,
         firstName,
@@ -57,9 +95,9 @@ app.post('/api/getStudent', (req, res) => {
     });
 });
 
-// Get a single admin using POST parameters
+// Handle form submission for getting a single admin
 app.post('/api/getAdmin', (req, res) => {
-    const { adminID, firstName, lastName, department } = req.body; // Use body to extract data
+    const { adminID, firstName, lastName, department } = req.body;
     res.json({
         adminID,
         firstName,
@@ -82,4 +120,3 @@ app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
 
-//hello
