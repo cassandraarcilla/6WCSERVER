@@ -12,111 +12,118 @@ const __dirname = dirname(__filename);
 const app = express();
 const PORT = 5000;
 
-// Setup multer storage
-var storage = multer.diskStorage({
-    destination: (req, file, callback) => {
-        callback(null, 'uploads/'); // Ensure 'uploads' folder exists
-    },
-    filename: (req, file, callback) => {
-        callback(null, file.originalname);
-    }
+// Setup multer storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, 'uploads/'); // Ensure 'uploads' folder exists
+  },
+  filename: (req, file, callback) => {
+    callback(null, file.originalname);
+  }
 });
 
-// Use multer to handle file uploads
-var upload = multer({ storage: storage }).fields([{ name: 'file', maxCount: 1 }]);
+// Initialize multer upload middleware
+const upload = multer({ storage: storage }).fields([{ name: 'file', maxCount: 1 }]);
 
 // Middleware for parsing form data
-app.use(express.urlencoded({ extended: true }));  // Middleware for URL-encoded form data
-app.use(express.json());  // Middleware for parsing JSON data
+app.use(express.urlencoded({ extended: true }));  // For URL-encoded form data
+app.use(express.json());  // For JSON data
 
-// Route to serve file upload form (adminForm.html)
+// Serve static files from 'public' directory (CSS, JS, images)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Optional: Serve views folder statically if you want direct html access (commented out)
+// app.use('/views', express.static(path.join(__dirname, 'views')));
+
+// Routes
+
+// Root route: serve adminForm.html
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views/adminForm.html'));
+  res.sendFile(path.join(__dirname, 'views', 'adminForm.html'));
+});
+
+// Home page route
+app.get('/home', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'home.html'));
+});
+
+// Student form page route
+app.get('/studentForm', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'studentForm.html'));
+});
+
+// Admin form page route
+app.get('/adminForm', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'adminForm.html'));
 });
 
 // Handle file upload (POST /upload)
 app.post('/upload', (req, res) => {
-    upload(req, res, (err) => {
-        // Check if there's an error during file upload
-        if (err) return res.end('Error uploading file');
-        
-        // Access the text field (username)
-        const username = req.body.username;
-        
-        // Access the uploaded file
-        const uploadedFile = req.files['file'][0]; // Corrected field name here
+  upload(req, res, (err) => {
+    if (err) {
+      console.error('Error uploading file:', err);
+      return res.status(500).send('Error uploading file');
+    }
 
-        console.log(`Username: ${username}`);
-        console.log(`File path: ${uploadedFile.path}`);
-        
-        // Respond with success message
-        res.end('File and form data uploaded successfully!');
-    });
-});
+    const username = req.body.username;
+    const uploadedFile = req.files?.file?.[0];
 
-// Serve static files from 'public' directory
-app.use(express.static(path.join(__dirname, 'public')));
+    if (!uploadedFile) {
+      return res.status(400).send('No file uploaded');
+    }
 
-// Home page route (Handling GET request)
-app.get('/home', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'home.html'));
-});
+    console.log(`Username: ${username}`);
+    console.log(`File saved at: ${uploadedFile.path}`);
 
-// Student form page route (Handling GET request)
-app.get('/studentForm', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'studentForm.html'));
-});
-
-// Admin form page route (Handling GET request)
-app.get('/adminForm', (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'adminForm.html'));
+    res.send('File and form data uploaded successfully!');
+  });
 });
 
 // Handle form submission for admin data (POST /api/postAdmin)
 app.post('/api/postAdmin', (req, res) => {
-    const { adminID, firstName, lastName, department } = req.body;
-    console.log(`Received Admin Data: ${adminID}, ${firstName}, ${lastName}, ${department}`);
-    
-    res.json({
-        message: 'Admin data received successfully!',
-        adminData: { adminID, firstName, lastName, department }
-    });
+  const { adminID, firstName, lastName, department } = req.body;
+  console.log(`Received Admin Data: ${adminID}, ${firstName}, ${lastName}, ${department}`);
+
+  res.json({
+    message: 'Admin data received successfully!',
+    adminData: { adminID, firstName, lastName, department }
+  });
 });
 
 // Handle form submission for getting a single student
 app.post('/api/getStudent', (req, res) => {
-    const { studentID, firstName, lastName, section } = req.body;
-    res.json({
-        studentID,
-        firstName,
-        lastName,
-        section,
-        message: 'Student data retrieved successfully'
-    });
+  const { studentID, firstName, lastName, section } = req.body;
+  res.json({
+    studentID,
+    firstName,
+    lastName,
+    section,
+    message: 'Student data retrieved successfully'
+  });
 });
 
 // Handle form submission for getting a single admin
 app.post('/api/getAdmin', (req, res) => {
-    const { adminID, firstName, lastName, department } = req.body;
-    res.json({
-        adminID,
-        firstName,
-        lastName,
-        department,
-        message: 'Admin data retrieved successfully'
-    });
+  const { adminID, firstName, lastName, department } = req.body;
+  res.json({
+    adminID,
+    firstName,
+    lastName,
+    department,
+    message: 'Admin data retrieved successfully'
+  });
 });
 
 // Get all students (sample data for testing)
 app.post('/api/getAllStudents', (req, res) => {
-    res.json([
-        { studentID: 1, firstName: "Juan", lastName: "Dela Cruz", section: "A" },
-        { studentID: 2, firstName: "Maria", lastName: "Santos", section: "B" }
-    ]);
+  res.json([
+    { studentID: 1, firstName: "Juan", lastName: "Dela Cruz", section: "A" },
+    { studentID: 2, firstName: "Maria", lastName: "Santos", section: "B" }
+  ]);
 });
 
 // Start the server
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
 

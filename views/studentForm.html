@@ -1,20 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <title>Student Form</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/style.css" />
 </head>
 <body>
   <div class="form-container">
     <h2>Student Form</h2>
-    <form action="/api/postStudent" method="post">
-      <input type="text" name="studentID" placeholder="Student ID" required>
-      <input type="text" name="firstName" placeholder="First Name" required>
-      <input type="text" name="lastName" placeholder="Last Name" required>
-      <input type="text" name="section" placeholder="Section" required>
+    
+    <!-- Navigation Buttons -->
+    <div class="nav-buttons" style="margin-bottom: 20px;">
+      <button onclick="location.href='/adminForm'">Admin</button>
+      <button onclick="location.href='/home'">Home</button>
+      <button onclick="location.href='/studentForm'">Student</button>
+    </div>
+
+    <form action="/api/postStudent" method="POST">
+      <input type="text" name="studentID" placeholder="Student ID" required />
+      <input type="text" name="firstName" placeholder="First Name" required />
+      <input type="text" name="lastName" placeholder="Last Name" required />
+      <input type="text" name="section" placeholder="Section" required />
       <button type="submit">Submit</button>
     </form>
   </div>
 </body>
 </html>
-
